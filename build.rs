@@ -79,7 +79,7 @@ fn main() -> std::io::Result<()> {
             let path = PathBuf::from(format!("headers/{}/nvEncodeAPI.h", version));
             if let Ok(canonical_path) = path.canonicalize() {
                 if let Ok(filename) = canonical_path.into_os_string().into_string() {
-                    println!("cargo:nvenc_{}={}", version, filename);
+                    println!("cargo:include_{}={}", version, filename);
                     generate_bindings(version, &filename, &out_dir);
                     generate_struct_versions(version, &filename, &out_dir)?;
                 }
