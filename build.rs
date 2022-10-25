@@ -13,8 +13,13 @@ struct CustomParseCallback {}
 
 impl ParseCallbacks for CustomParseCallback {
     fn add_derives(&self, name: &str) -> Vec<String> {
-        if name == "GUID" {
-            vec!["PartialEq".to_string(), "Eq".to_string()]
+        if name == "_NVENCSTATUS" {
+            vec!["Copy".to_string()]
+        } else if name == "GUID" {
+            ["Clone", "Copy", "PartialEq", "Eq"]
+                .iter()
+                .map(|s| s.to_string())
+                .collect()
         } else {
             vec![]
         }
@@ -27,6 +32,7 @@ fn generate_bindings(version: &str, filename: &str, out_dir: &PathBuf) {
         .parse_callbacks(Box::new(CustomParseCallback {}))
         .layout_tests(false)
         .derive_debug(true)
+        .derive_copy(false)
         .generate_comments(false)
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
