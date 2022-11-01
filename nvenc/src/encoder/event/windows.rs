@@ -2,8 +2,8 @@ use super::EventObjectTrait;
 use crate::{NvEncError, Result};
 use std::ffi::c_void;
 use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE},
-    System::Threading::{CreateEventA, WaitForSingleObject, WAIT_OBJECT_0},
+    Foundation::{CloseHandle, HANDLE, WAIT_OBJECT_0, WAIT_TIMEOUT},
+    System::Threading::{CreateEventA, WaitForSingleObject},
 };
 
 #[repr(transparent)]
@@ -17,15 +17,13 @@ impl Drop for EventObject {
 
 impl EventObjectTrait for EventObject {
     fn new() -> Result<Self> {
-        match unsafe { CreateEventA(std::ptr::null(), false, false, None) } {
+        match unsafe { CreateEventA(None, false, false, None) } {
             Ok(event) => Ok(EventObject(event)),
             Err(_) => Err(NvEncError::EventObjectCreationFailed),
         }
     }
 
     fn wait(&self, timeout_millis: u32) -> Result<()> {
-        const WAIT_TIMEOUT: u32 = windows::Win32::Foundation::WAIT_TIMEOUT.0;
-
         match unsafe { WaitForSingleObject(self.0, timeout_millis) } {
             WAIT_OBJECT_0 => Ok(()),
             WAIT_TIMEOUT => Err(NvEncError::EventObjectWaitTimeout),

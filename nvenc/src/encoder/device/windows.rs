@@ -1,12 +1,12 @@
-use super::{DeviceImplTrait, TextureBufferImplTrait, IntoDevice};
+use super::{DeviceImplTrait, IntoDevice, TextureBufferImplTrait};
 use crate::{NvEncError, Result};
 use windows::{
-    core::Interface,
+    core::{InParam, Vtable},
     Win32::Graphics::{
         Direct3D11::{
-            ID3D11Device, ID3D11DeviceContext, ID3D11Texture2D, D3D11_BIND_RENDER_TARGET,
-            D3D11_CPU_ACCESS_FLAG, D3D11_RESOURCE_MISC_FLAG, D3D11_TEXTURE2D_DESC,
-            D3D11_USAGE_DEFAULT,
+            ID3D11Device, ID3D11DeviceContext, ID3D11Texture2D,
+            D3D11_BIND_RENDER_TARGET, D3D11_CPU_ACCESS_FLAG, D3D11_RESOURCE_MISC_FLAG,
+            D3D11_TEXTURE2D_DESC, D3D11_USAGE_DEFAULT,
         },
         Dxgi::Common::DXGI_SAMPLE_DESC,
     },
@@ -61,7 +61,7 @@ impl DeviceImplTrait for DirectX11Device {
         // SAFETY: Windows API call
         unsafe {
             self.device
-                .CreateTexture2D(&texture_desc, std::ptr::null())
+                .CreateTexture2D(&texture_desc, None)
                 .map_err(|_| NvEncError::TextureBufferCreationFailed)
         }
     }
@@ -80,9 +80,9 @@ impl DeviceImplTrait for DirectX11Device {
                 0,
                 0,
                 0,
-                texture,
+                InParam::owned(texture.into()), // TODO: Revisit this on next windows-rs versions
                 0,
-                std::ptr::null(),
+                None,
             );
         }
     }
@@ -93,6 +93,8 @@ impl IntoDevice for ID3D11Device {
 
     fn into_device(self) -> Self::Device {
         let mut immediate_context = None;
+
+        // SAFETY: Windows API call. `GetImmediateContext` always succeeds.
         unsafe {
             self.GetImmediateContext(&mut immediate_context);
         }

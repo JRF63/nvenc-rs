@@ -12,9 +12,8 @@ nvenc-sys = { path = "../nvenc-sys", features = ["v11_1"] }
 thiserror = "1.0.31"
 
 [dependencies.windows]
-version = "0.37.0"
+version = "0.43.0"
 features = [
-    "alloc", # For conversion of &str to PCSTR 
     "Win32_Foundation",
     "Win32_Graphics_Direct3D11",
     "Win32_Graphics_Dxgi",

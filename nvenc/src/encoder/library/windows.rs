@@ -1,12 +1,12 @@
 use super::LibraryImplTrait;
 use crate::{NvEncError, Result};
 use std::{
-    ffi::{OsStr, OsString},
+    ffi::{CString, OsStr, OsString},
     num::NonZeroIsize,
     os::windows::ffi::{OsStrExt, OsStringExt},
 };
 use windows::{
-    core::{Error, GUID, PCWSTR, PWSTR},
+    core::{Error, GUID, PCSTR, PCWSTR, PWSTR},
     Win32::{
         Foundation::{HANDLE, HINSTANCE},
         Security::WinTrust::{
@@ -74,7 +74,7 @@ impl LibraryImplTrait for LibraryImpl {
             },
             dwStateAction: WTD_STATEACTION_VERIFY,
             hWVTStateData: HANDLE(0),
-            pwszURLReference: PWSTR::default(),
+            pwszURLReference: PWSTR::null(),
             dwProvFlags: WTD_REVOCATION_CHECK_CHAIN,
             dwUIContext: WINTRUST_DATA_UICONTEXT(0),
             pSignatureSettings: std::ptr::null_mut(),
@@ -102,9 +102,15 @@ impl LibraryImplTrait for LibraryImpl {
 
     /// Open a .dll from C:\Windows\System32 without verification if it's signed or not.
     fn load(lib_name: &str) -> Result<Self> {
+        let lib_name = CString::new(lib_name).map_err(|_| NvEncError::LibraryLoadingFailed)?;
+
         let lib = unsafe {
-            LoadLibraryExA(lib_name, None, LOAD_LIBRARY_SEARCH_SYSTEM32)
-                .map_err(|_| NvEncError::LibraryLoadingFailed)?
+            LoadLibraryExA(
+                PCSTR::from_raw(lib_name.as_ptr().cast()),
+                None,
+                LOAD_LIBRARY_SEARCH_SYSTEM32,
+            )
+            .map_err(|_| NvEncError::LibraryLoadingFailed)?
         };
         // SAFETY: `LoadLibraryExA` returns a non-null pointer on success
         let nonzero = unsafe { NonZeroIsize::new_unchecked(lib.0) };
@@ -114,7 +120,8 @@ impl LibraryImplTrait for LibraryImpl {
     /// Extracts a function pointer from the library. The returned function pointer is bound to
     /// the lifetime `&self`.
     unsafe fn fn_ptr<T>(&self, fn_name: &str) -> Option<T> {
-        GetProcAddress(self.as_inner(), fn_name).map(|ptr| {
+        let fn_name = CString::new(fn_name).ok()?;
+        GetProcAddress(self.as_inner(), PCSTR::from_raw(fn_name.as_ptr().cast())).map(|ptr| {
             // Fancy transmute
             (&ptr as *const _ as *const T).read()
         })
@@ -137,7 +144,7 @@ fn get_system32_dir() -> String {
         let mut buf = vec![0; expected_length + 1];
 
         loop {
-            let size = unsafe { GetSystemDirectoryW(&mut buf) } as usize;
+            let size = unsafe { GetSystemDirectoryW(Some(&mut buf)) } as usize;
             match Ord::cmp(&(size), &expected_length) {
                 // The buffer is too large or there is an error
                 std::cmp::Ordering::Less => {

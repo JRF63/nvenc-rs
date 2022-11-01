@@ -3,7 +3,7 @@ use crate::Result;
 use std::ffi::c_void;
 use std::mem::MaybeUninit;
 use windows::{
-    core::Interface,
+    core::Vtable,
     Win32::Graphics::{
         Direct3D11::ID3D11Texture2D,
         Dxgi::Common::{
