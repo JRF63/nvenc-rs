@@ -34,7 +34,6 @@ fn open_encode_session<T: DeviceImplTrait>(
 /// Checks the function list for null pointers. They all need to be valid since they are going to
 /// be `unwrap_unchecked` later.
 fn is_function_list_valid(functions: &crate::sys::NV_ENCODE_API_FUNCTION_LIST) -> bool {
-    // It could also be transmuted to a &[u8; _] and checked for zeroes that way
     let helper = || -> Option<()> {
         functions.nvEncOpenEncodeSession?;
         functions.nvEncGetEncodeGUIDCount?;

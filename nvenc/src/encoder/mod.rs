@@ -12,7 +12,7 @@ mod texture;
 
 pub use self::{
     builder::EncoderBuilder,
-    device::{Device, IntoDevice},
+    device::{DirectX11Device, IntoDevice},
     encoder_input::EncoderInput,
     encoder_output::EncoderOutput,
 };

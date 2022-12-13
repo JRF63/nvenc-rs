@@ -1,8 +1,7 @@
 #[cfg(windows)]
 mod windows;
 
-#[cfg(windows)]
-pub use self::windows::DirectX11Device as Device;
+pub use self::windows::DirectX11Device;
 
 use super::texture::{TextureImplTrait, TextureBufferImplTrait};
 use crate::Result;
