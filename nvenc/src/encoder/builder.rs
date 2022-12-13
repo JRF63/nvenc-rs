@@ -8,7 +8,7 @@ use super::{
     shared::encoder_channel,
     texture::TextureBufferImplTrait,
 };
-use crate::{Codec, CodecProfile, EncodePreset, NvEncError, Result, TuningInfo};
+use crate::{Codec, CodecProfile, EncodePreset, NvEncError, Result, TuningInfo, MultiPassSetting};
 use std::mem::MaybeUninit;
 
 /// Size of the ring buffer that is shared between the input and output
@@ -123,6 +123,12 @@ where
     /// Enable spatial adaptive quantization.
     pub fn enable_spatial_aq(&mut self) -> Result<&mut Self> {
         self.extra_options.enable_spatial_aq();
+        Ok(self)
+    }
+
+    /// Configure with the given `MultiPassSetting`.
+    pub fn set_multi_pass(&mut self, multi_pass: MultiPassSetting) -> Result<&mut Self> {
+        self.extra_options.set_multi_pass(multi_pass);
         Ok(self)
     }
 

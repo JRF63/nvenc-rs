@@ -228,3 +228,36 @@ impl From<crate::sys::NV_ENC_TUNING_INFO> for TuningInfo {
         }
     }
 }
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+#[non_exhaustive]
+pub enum MultiPassSetting {
+    Disabled,
+    QuarterResolution,
+    FullResolution,
+}
+
+impl Into<crate::sys::NV_ENC_MULTI_PASS> for MultiPassSetting {
+    fn into(self) -> crate::sys::NV_ENC_MULTI_PASS {
+        match self {
+            MultiPassSetting::Disabled => todo!(),
+            MultiPassSetting::QuarterResolution => todo!(),
+            MultiPassSetting::FullResolution => todo!(),
+        }
+    }
+}
+
+impl From<crate::sys::NV_ENC_MULTI_PASS> for MultiPassSetting {
+    fn from(multi_pass: crate::sys::NV_ENC_MULTI_PASS) -> Self {
+        match multi_pass {
+            crate::sys::NV_ENC_MULTI_PASS::NV_ENC_MULTI_PASS_DISABLED => MultiPassSetting::Disabled,
+            crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_QUARTER_RESOLUTION => {
+                MultiPassSetting::QuarterResolution
+            }
+            crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_FULL_RESOLUTION => {
+                MultiPassSetting::FullResolution
+            }
+            _ => panic!("Invalid multi-pass setting."),
+        }
+    }
+}

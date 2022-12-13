@@ -1,5 +1,5 @@
 use super::{raw_encoder::RawEncoder, texture::IntoNvEncBufferFormat};
-use crate::{Codec, CodecProfile, EncodePreset, Result, TuningInfo};
+use crate::{Codec, CodecProfile, EncodePreset, MultiPassSetting, Result, TuningInfo};
 use std::{mem::MaybeUninit, ptr::addr_of_mut};
 
 #[repr(transparent)]
@@ -197,6 +197,7 @@ pub struct ExtraOptions {
     inband_csd_disabled: bool,
     csd_should_repeat: bool,
     spatial_sq_enabled: bool,
+    multi_pass: MultiPassSetting,
 }
 
 impl Default for ExtraOptions {
@@ -205,6 +206,7 @@ impl Default for ExtraOptions {
             inband_csd_disabled: false,
             csd_should_repeat: false,
             spatial_sq_enabled: false,
+            multi_pass: MultiPassSetting::Disabled,
         }
     }
 }
@@ -222,10 +224,15 @@ impl ExtraOptions {
         self.spatial_sq_enabled = true;
     }
 
+    pub(crate) fn set_multi_pass(&mut self, multi_pass: MultiPassSetting) {
+        self.multi_pass = multi_pass;
+    }
+
     fn modify_encode_config(&self, config: &mut crate::sys::NV_ENC_CONFIG) {
         if self.spatial_sq_enabled {
             config.rcParams.set_enableAQ(1);
         }
+        config.rcParams.multiPass = self.multi_pass.into();
     }
 
     fn modify_h264_encode_config(&self, h264_config: &mut crate::sys::NV_ENC_CONFIG_H264) {

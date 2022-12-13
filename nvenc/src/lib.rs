@@ -9,5 +9,5 @@ pub type Result<T> = std::result::Result<T, NvEncError>;
 pub use self::{
     encoder::{DirectX11Device, EncoderBuilder, EncoderInput, EncoderOutput, IntoDevice},
     error::NvEncError,
-    settings::{Codec, CodecProfile, EncodePreset, TuningInfo},
+    settings::{Codec, CodecProfile, EncodePreset, TuningInfo, MultiPassSetting},
 };
