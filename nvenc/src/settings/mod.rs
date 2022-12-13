@@ -240,9 +240,9 @@ pub enum MultiPassSetting {
 impl Into<crate::sys::NV_ENC_MULTI_PASS> for MultiPassSetting {
     fn into(self) -> crate::sys::NV_ENC_MULTI_PASS {
         match self {
-            MultiPassSetting::Disabled => todo!(),
-            MultiPassSetting::QuarterResolution => todo!(),
-            MultiPassSetting::FullResolution => todo!(),
+            MultiPassSetting::Disabled => crate::sys::NV_ENC_MULTI_PASS::NV_ENC_MULTI_PASS_DISABLED,
+            MultiPassSetting::QuarterResolution => crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_QUARTER_RESOLUTION,
+            MultiPassSetting::FullResolution => crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_FULL_RESOLUTION,
         }
     }
 }
