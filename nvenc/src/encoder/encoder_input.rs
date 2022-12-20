@@ -17,6 +17,11 @@ pub struct EncoderInput<D: DeviceImplTrait> {
     encode_pic_params: crate::sys::NV_ENC_PIC_PARAMS,
 }
 
+// SAFETY:
+// !Send is caused by the pointers in `encode_params` and `encode_pic_params` but those pointers
+// should be safe to move between threads.
+unsafe impl<D: DeviceImplTrait> Send for EncoderInput<D> {}
+
 impl<D: DeviceImplTrait> Drop for EncoderInput<D> {
     fn drop(&mut self) {
         let _ = self.end_encode();
