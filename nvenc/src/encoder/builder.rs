@@ -8,7 +8,7 @@ use super::{
     shared::encoder_channel,
     texture::TextureBufferImplTrait,
 };
-use crate::{Codec, CodecProfile, EncodePreset, NvEncError, Result, TuningInfo, MultiPassSetting};
+use crate::{Codec, CodecProfile, EncodePreset, MultiPassSetting, NvEncError, Result, TuningInfo};
 use std::mem::MaybeUninit;
 
 /// Size of the ring buffer that is shared between the input and output
@@ -17,11 +17,8 @@ pub const BUFFER_SIZE: usize = 8;
 /// Checks if the user's NvEncAPI version is supported.
 fn is_version_supported(version: u32) -> bool {
     // TODO: Change this logic once older versions (9.0 to 10.0) are supported
-    let major_version = version >> 4;
-    let minor_version = version & 0b1111;
-    if major_version >= crate::sys::NVENCAPI_MAJOR_VERSION
-        && minor_version >= crate::sys::NVENCAPI_MINOR_VERSION
-    {
+    let this_version = crate::sys::NVENCAPI_MAJOR_VERSION << 4 | crate::sys::NVENCAPI_MINOR_VERSION;
+    if version >= this_version {
         true
     } else {
         false
