@@ -44,14 +44,15 @@ impl EncodeParams {
         init_params.encodeWidth = width;
         init_params.encodeHeight = height;
 
-        if let Some((dar_width, dar_height)) = display_aspect_ratio {
-            init_params.darWidth = dar_width;
-            init_params.darHeight = dar_height;
-        } else {
-            let gcd = crate::util::gcd(width, height);
-            init_params.darWidth = width / gcd;
-            init_params.darHeight = height / gcd;
-        }
+        let (dar_width, dar_height) = match display_aspect_ratio {
+            Some(display_aspect_ratio) => display_aspect_ratio,
+            None => {
+                let gcd = crate::util::gcd(width, height);
+                (width / gcd, height / gcd)
+            }
+        };
+        init_params.darWidth = dar_width;
+        init_params.darHeight = dar_height;
 
         init_params.frameRateNum = refresh_rate_ratio.0;
         init_params.frameRateDen = refresh_rate_ratio.1;
