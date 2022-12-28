@@ -31,6 +31,7 @@ where
 {
     device: D,
     raw_encoder: RawEncoder,
+    #[allow(dead_code)]
     max_supported_version: u32,
     codec: Option<Codec>,
     profile: CodecProfile,
