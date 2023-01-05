@@ -104,6 +104,9 @@ impl<D: DeviceImplTrait> EncoderInput<D> {
         // Used for invalidation of frames
         self.encode_pic_params.inputTimeStamp = timestamp;
 
+        // Reset flags
+        self.encode_pic_params.encodePicFlags = 0;
+
         unsafe {
             self.writer.encode_picture(&mut self.encode_pic_params)?;
         }
@@ -111,15 +114,19 @@ impl<D: DeviceImplTrait> EncoderInput<D> {
         Ok(())
     }
 
-    fn end_encode(&mut self) -> Result<()> {
-        let pic_params = &mut self.encode_pic_params;
+    pub fn force_idr_on_next(&mut self) {
+        self.encode_pic_params.encodePicFlags =
+            crate::sys::NV_ENC_PIC_FLAGS::NV_ENC_PIC_FLAG_FORCEIDR as u32;
+    }
 
+    fn end_encode(&mut self) -> Result<()> {
         self.writer.write(|_, buffer| {
             buffer.end_of_stream = true;
-            pic_params.inputBuffer = std::ptr::null_mut();
-            pic_params.outputBitstream = std::ptr::null_mut();
-            pic_params.completionEvent = buffer.event_obj.as_ptr();
-            pic_params.encodePicFlags = crate::sys::NV_ENC_PIC_FLAGS::NV_ENC_PIC_FLAG_EOS as u32;
+            self.encode_pic_params.inputBuffer = std::ptr::null_mut();
+            self.encode_pic_params.outputBitstream = std::ptr::null_mut();
+            self.encode_pic_params.completionEvent = buffer.event_obj.as_ptr();
+            self.encode_pic_params.encodePicFlags =
+                crate::sys::NV_ENC_PIC_FLAGS::NV_ENC_PIC_FLAG_EOS as u32;
             Ok(())
         })?;
 
