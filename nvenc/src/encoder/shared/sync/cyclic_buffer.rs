@@ -1,7 +1,6 @@
 use super::cache_aligned::CacheAligned;
 use std::{
     cell::UnsafeCell,
-    mem::MaybeUninit,
     sync::atomic::{AtomicUsize, Ordering},
 };
 
@@ -31,19 +30,12 @@ impl<T, const N: usize> CyclicBuffer<T, N> {
             return None;
         }
 
-        let mut tmp = MaybeUninit::<[UnsafeCell<CacheAligned<T>>; N]>::uninit();
-        unsafe {
-            // Pointer to the start of the array's buffer
-            let mut ptr = (&mut *tmp.as_mut_ptr()).as_mut_ptr();
-            for item in buffer {
-                ptr.write(UnsafeCell::new(CacheAligned::new(item)));
-                ptr = ptr.offset(1);
-            }
-        }
+        let buffer = buffer.map(|x| UnsafeCell::new(CacheAligned::new(x)));
+
         Some(CyclicBuffer {
             head: AtomicUsize::new(0),
             tail: AtomicUsize::new(0),
-            buffer: unsafe { tmp.assume_init() },
+            buffer,
         })
     }
 
