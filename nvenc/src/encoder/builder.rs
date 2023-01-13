@@ -136,7 +136,7 @@ where
         height: u32,
         texture_format: <D::Buffer as TextureBufferImplTrait>::TextureFormat,
         display_aspect_ratio: Option<(u32, u32)>,
-        refresh_rate_ratio: (u32, u32),
+        refresh_rate_ratio: Option<(u32, u32)>,
     ) -> Result<(EncoderInput<D>, EncoderOutput)> {
         let codec = self.codec.ok_or(NvEncError::CodecNotSet)?;
         let profile = self.profile;

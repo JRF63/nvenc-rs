@@ -25,7 +25,7 @@ impl EncodeParams {
         width: u32,
         height: u32,
         display_aspect_ratio: Option<(u32, u32)>,
-        refresh_rate_ratio: (u32, u32),
+        refresh_rate_ratio: Option<(u32, u32)>,
         texture_format: &T,
         codec: Codec,
         profile: CodecProfile,
@@ -45,7 +45,7 @@ impl EncodeParams {
         init_params.encodeHeight = height;
 
         let (dar_width, dar_height) = match display_aspect_ratio {
-            Some(display_aspect_ratio) => display_aspect_ratio,
+            Some(pair) => pair,
             None => {
                 let gcd = crate::util::gcd(width, height);
                 (width / gcd, height / gcd)
@@ -54,8 +54,14 @@ impl EncodeParams {
         init_params.darWidth = dar_width;
         init_params.darHeight = dar_height;
 
-        init_params.frameRateNum = refresh_rate_ratio.0;
-        init_params.frameRateDen = refresh_rate_ratio.1;
+        let (frame_rate_num, frame_rate_den) = match refresh_rate_ratio {
+            Some(pair) => pair,
+            None => (0, 0)
+        };
+
+        init_params.frameRateNum = frame_rate_num;
+        init_params.frameRateDen = frame_rate_den;
+
         init_params.enablePTD = 1;
         init_params.tuningInfo = tuning_info.into();
 
