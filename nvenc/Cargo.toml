@@ -11,7 +11,7 @@ lazy_static = "1.4.0"
 nvenc-sys = { path = "../nvenc-sys", features = ["v11_1"] }
 thiserror = "1.0.31"
 
-[dependencies.windows]
+[target.'cfg(target_os = "windows")'.dependencies.windows]
 version = "0.43.0"
 features = [
     "Win32_Foundation",
