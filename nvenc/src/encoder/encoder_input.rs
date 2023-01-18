@@ -104,19 +104,23 @@ impl<D: DeviceImplTrait> EncoderInput<D> {
         // Used for invalidation of frames
         self.encode_pic_params.inputTimeStamp = timestamp;
 
-        // Reset flags
-        self.encode_pic_params.encodePicFlags = 0;
-
         unsafe {
             self.writer.encode_picture(&mut self.encode_pic_params)?;
         }
 
+        // The flags are only good for one frame so we reset them after encoding
+        self.encode_pic_params.encodePicFlags = 0;
+
         Ok(())
     }
 
+    /// Force the next frame to be encoded as an IDR picture and also emits codec parameters
+    /// (SPS/PPS) inline in the bitstream.
+    #[inline]
     pub fn force_idr_on_next(&mut self) {
         self.encode_pic_params.encodePicFlags =
-            crate::sys::NV_ENC_PIC_FLAGS::NV_ENC_PIC_FLAG_FORCEIDR as u32;
+            crate::sys::NV_ENC_PIC_FLAGS::NV_ENC_PIC_FLAG_FORCEIDR as u32
+                | crate::sys::NV_ENC_PIC_FLAGS::NV_ENC_PIC_FLAG_OUTPUT_SPSPPS as u32;
     }
 
     fn end_encode(&mut self) -> Result<()> {
