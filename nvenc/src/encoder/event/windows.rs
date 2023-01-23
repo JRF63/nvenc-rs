@@ -2,8 +2,9 @@ use super::EventObjectTrait;
 use crate::{NvEncError, Result};
 use std::ffi::c_void;
 use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE, WAIT_OBJECT_0, WAIT_TIMEOUT},
+    Foundation::{CloseHandle, HANDLE, WAIT_OBJECT_0},
     System::Threading::{CreateEventA, WaitForSingleObject},
+    System::WindowsProgramming::INFINITE,
 };
 
 #[repr(transparent)]
@@ -23,10 +24,9 @@ impl EventObjectTrait for EventObject {
         }
     }
 
-    fn wait(&self, timeout_millis: u32) -> Result<()> {
-        match unsafe { WaitForSingleObject(self.0, timeout_millis) } {
+    fn wait(&self) -> Result<()> {
+        match unsafe { WaitForSingleObject(self.0, INFINITE) } {
             WAIT_OBJECT_0 => Ok(()),
-            WAIT_TIMEOUT => Err(NvEncError::EventObjectWaitTimeout),
             _ => Err(NvEncError::EventObjectWaitError),
         }
     }

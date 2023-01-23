@@ -33,8 +33,6 @@ pub enum NvEncError {
     EventObjectCreationFailed,
     #[error("Error while waiting for the event object to be signaled")]
     EventObjectWaitError,
-    #[error("Event timed-out while waiting")]
-    EventObjectWaitTimeout,
 
     #[error("Input has signaled end of stream")]
     EndOfStream,
