@@ -1,4 +1,4 @@
-use bindgen::callbacks::ParseCallbacks;
+use bindgen::callbacks::{DeriveInfo, ParseCallbacks};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -12,10 +12,10 @@ use std::{
 struct CustomParseCallback {}
 
 impl ParseCallbacks for CustomParseCallback {
-    fn add_derives(&self, name: &str) -> Vec<String> {
-        if name == "_NVENCSTATUS" {
+    fn add_derives(&self, info: &DeriveInfo<'_>) -> Vec<String> {
+        if info.name == "_NVENCSTATUS" {
             vec!["Copy".to_string()]
-        } else if name == "GUID" {
+        } else if info.name == "GUID" {
             ["Clone", "Copy", "PartialEq", "Eq"]
                 .iter()
                 .map(|s| s.to_string())
@@ -38,6 +38,10 @@ fn generate_bindings(version: &str, filename: &str, out_dir: &PathBuf) {
             non_exhaustive: true,
         })
         .must_use_type("_NVENCSTATUS")
+        // These functions are meant to be accessed through the NV_ENCODE_API_FUNCTION_LIST struct
+        .blocklist_function("NvEnc.*")
+        // Prevent including windows.h
+        .clang_args(["--undefine-macro=_WIN32"])
         .generate()
         .expect("Unable to generate bindings");
 

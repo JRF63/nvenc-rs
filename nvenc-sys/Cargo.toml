@@ -5,12 +5,13 @@ edition = "2021"
 links = "nvenc"
 
 [build-dependencies]
-bindgen = "0.60.1"
-regex = "1.6.0"
+bindgen = "0.63.0"
+regex = "1.7.1"
 lazy_static = "1.4.0"
 
 [features]
 v9_0 = []
 v9_1 = []
 v10_0 = []
+v11_0 = []
 v11_1 = []
