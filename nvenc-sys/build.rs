@@ -79,7 +79,7 @@ fn main() -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=headers");
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
 
-    let versions = ["v9_0", "v9_1", "v10_0", "v11_1"];
+    let versions = ["v9_0", "v9_1", "v10_0", "v11_0", "v11_1"];
     for version in versions {
         if let Ok(_) = env::var(&format!("CARGO_FEATURE_{}", version.to_uppercase())) {
             let path = PathBuf::from(format!("headers/{}/nvEncodeAPI.h", version));
