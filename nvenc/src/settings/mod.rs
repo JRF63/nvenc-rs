@@ -1,6 +1,6 @@
 mod guids;
 
-pub use guids::*;
+use guids::*;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
@@ -20,12 +20,10 @@ impl Into<crate::sys::GUID> for Codec {
 
 impl From<crate::sys::GUID> for Codec {
     fn from(guid: crate::sys::GUID) -> Self {
-        if guid == NV_ENC_CODEC_H264_GUID {
-            Codec::H264
-        } else if guid == NV_ENC_CODEC_HEVC_GUID {
-            Codec::Hevc
-        } else {
-            panic!("Invalid codec guid.")
+        match guid {
+            NV_ENC_CODEC_H264_GUID => Codec::H264,
+            NV_ENC_CODEC_HEVC_GUID => Codec::Hevc,
+            _ => panic!("Invalid codec guid"),
         }
     }
 }
@@ -66,30 +64,19 @@ impl Into<crate::sys::GUID> for CodecProfile {
 
 impl From<crate::sys::GUID> for CodecProfile {
     fn from(guid: crate::sys::GUID) -> Self {
-        if guid == NV_ENC_CODEC_PROFILE_AUTOSELECT_GUID {
-            CodecProfile::Autoselect
-        } else if guid == NV_ENC_H264_PROFILE_BASELINE_GUID {
-            CodecProfile::H264Baseline
-        } else if guid == NV_ENC_H264_PROFILE_MAIN_GUID {
-            CodecProfile::H264Main
-        } else if guid == NV_ENC_H264_PROFILE_HIGH_GUID {
-            CodecProfile::H264High
-        } else if guid == NV_ENC_H264_PROFILE_HIGH_444_GUID {
-            CodecProfile::H264High444
-        } else if guid == NV_ENC_H264_PROFILE_STEREO_GUID {
-            CodecProfile::H264Stereo
-        } else if guid == NV_ENC_H264_PROFILE_PROGRESSIVE_HIGH_GUID {
-            CodecProfile::H264ProgressiveHigh
-        } else if guid == NV_ENC_H264_PROFILE_CONSTRAINED_HIGH_GUID {
-            CodecProfile::H264ConstrainedHigh
-        } else if guid == NV_ENC_HEVC_PROFILE_MAIN_GUID {
-            CodecProfile::HevcMain
-        } else if guid == NV_ENC_HEVC_PROFILE_MAIN10_GUID {
-            CodecProfile::HevcMain10
-        } else if guid == NV_ENC_HEVC_PROFILE_FREXT_GUID {
-            CodecProfile::HevcFrext
-        } else {
-            panic!("Invalid codec profile guid.")
+        match guid {
+            NV_ENC_CODEC_PROFILE_AUTOSELECT_GUID => CodecProfile::Autoselect,
+            NV_ENC_H264_PROFILE_BASELINE_GUID => CodecProfile::H264Baseline,
+            NV_ENC_H264_PROFILE_MAIN_GUID => CodecProfile::H264Main,
+            NV_ENC_H264_PROFILE_HIGH_GUID => CodecProfile::H264High,
+            NV_ENC_H264_PROFILE_HIGH_444_GUID => CodecProfile::H264High444,
+            NV_ENC_H264_PROFILE_STEREO_GUID => CodecProfile::H264Stereo,
+            NV_ENC_H264_PROFILE_PROGRESSIVE_HIGH_GUID => CodecProfile::H264ProgressiveHigh,
+            NV_ENC_H264_PROFILE_CONSTRAINED_HIGH_GUID => CodecProfile::H264ConstrainedHigh,
+            NV_ENC_HEVC_PROFILE_MAIN_GUID => CodecProfile::HevcMain,
+            NV_ENC_HEVC_PROFILE_MAIN10_GUID => CodecProfile::HevcMain10,
+            NV_ENC_HEVC_PROFILE_FREXT_GUID => CodecProfile::HevcFrext,
+            _ => panic!("Invalid codec profile guid"),
         }
     }
 }
@@ -142,42 +129,25 @@ impl Into<crate::sys::GUID> for EncodePreset {
 
 impl From<crate::sys::GUID> for EncodePreset {
     fn from(guid: crate::sys::GUID) -> Self {
-        if guid == NV_ENC_PRESET_DEFAULT_GUID {
-            EncodePreset::DefaultPreset
-        } else if guid == NV_ENC_PRESET_HP_GUID {
-            EncodePreset::Hp
-        } else if guid == NV_ENC_PRESET_HQ_GUID {
-            EncodePreset::Hq
-        } else if guid == NV_ENC_PRESET_BD_GUID {
-            EncodePreset::Bd
-        } else if guid == NV_ENC_PRESET_LOW_LATENCY_DEFAULT_GUID {
-            EncodePreset::LowLatencyDefault
-        } else if guid == NV_ENC_PRESET_LOW_LATENCY_HQ_GUID {
-            EncodePreset::LowLatencyHq
-        } else if guid == NV_ENC_PRESET_LOW_LATENCY_HP_GUID {
-            EncodePreset::LowLatencyHp
-        } else if guid == NV_ENC_PRESET_LOSSLESS_DEFAULT_GUID {
-            EncodePreset::LosslessDefault
-        } else if guid == NV_ENC_PRESET_LOSSLESS_HP_GUID {
-            EncodePreset::LosslessHp
-        } else if guid == NV_ENC_PRESET_STREAMING {
-            EncodePreset::Streaming
-        } else if guid == NV_ENC_PRESET_P1_GUID {
-            EncodePreset::P1
-        } else if guid == NV_ENC_PRESET_P2_GUID {
-            EncodePreset::P2
-        } else if guid == NV_ENC_PRESET_P3_GUID {
-            EncodePreset::P3
-        } else if guid == NV_ENC_PRESET_P4_GUID {
-            EncodePreset::P4
-        } else if guid == NV_ENC_PRESET_P5_GUID {
-            EncodePreset::P5
-        } else if guid == NV_ENC_PRESET_P6_GUID {
-            EncodePreset::P6
-        } else if guid == NV_ENC_PRESET_P7_GUID {
-            EncodePreset::P7
-        } else {
-            panic!("Invalid encoder preset.")
+        match guid {
+            NV_ENC_PRESET_DEFAULT_GUID => EncodePreset::DefaultPreset,
+            NV_ENC_PRESET_HP_GUID => EncodePreset::Hp,
+            NV_ENC_PRESET_HQ_GUID => EncodePreset::Hq,
+            NV_ENC_PRESET_BD_GUID => EncodePreset::Bd,
+            NV_ENC_PRESET_LOW_LATENCY_DEFAULT_GUID => EncodePreset::LowLatencyDefault,
+            NV_ENC_PRESET_LOW_LATENCY_HQ_GUID => EncodePreset::LowLatencyHq,
+            NV_ENC_PRESET_LOW_LATENCY_HP_GUID => EncodePreset::LowLatencyHp,
+            NV_ENC_PRESET_LOSSLESS_DEFAULT_GUID => EncodePreset::LosslessDefault,
+            NV_ENC_PRESET_LOSSLESS_HP_GUID => EncodePreset::LosslessHp,
+            NV_ENC_PRESET_STREAMING => EncodePreset::Streaming,
+            NV_ENC_PRESET_P1_GUID => EncodePreset::P1,
+            NV_ENC_PRESET_P2_GUID => EncodePreset::P2,
+            NV_ENC_PRESET_P3_GUID => EncodePreset::P3,
+            NV_ENC_PRESET_P4_GUID => EncodePreset::P4,
+            NV_ENC_PRESET_P5_GUID => EncodePreset::P5,
+            NV_ENC_PRESET_P6_GUID => EncodePreset::P6,
+            NV_ENC_PRESET_P7_GUID => EncodePreset::P7,
+            _ => panic!("Invalid encoder preset"),
         }
     }
 }
@@ -194,37 +164,27 @@ pub enum TuningInfo {
 
 impl Into<crate::sys::NV_ENC_TUNING_INFO> for TuningInfo {
     fn into(self) -> crate::sys::NV_ENC_TUNING_INFO {
+        use crate::sys::NV_ENC_TUNING_INFO;
         match self {
-            TuningInfo::Undefined => crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_UNDEFINED,
-            TuningInfo::HighQuality => {
-                crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_HIGH_QUALITY
-            }
-            TuningInfo::LowLatency => {
-                crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOW_LATENCY
-            }
-            TuningInfo::UltraLowLatency => {
-                crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_ULTRA_LOW_LATENCY
-            }
-            TuningInfo::Lossless => crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOSSLESS,
+            TuningInfo::Undefined => NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_UNDEFINED,
+            TuningInfo::HighQuality => NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_HIGH_QUALITY,
+            TuningInfo::LowLatency => NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOW_LATENCY,
+            TuningInfo::UltraLowLatency => NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_ULTRA_LOW_LATENCY,
+            TuningInfo::Lossless => NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOSSLESS,
         }
     }
 }
 
 impl From<crate::sys::NV_ENC_TUNING_INFO> for TuningInfo {
     fn from(tuning_info: crate::sys::NV_ENC_TUNING_INFO) -> Self {
+        use crate::sys::NV_ENC_TUNING_INFO;
         match tuning_info {
-            crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_UNDEFINED => TuningInfo::Undefined,
-            crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_HIGH_QUALITY => {
-                TuningInfo::HighQuality
-            }
-            crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOW_LATENCY => {
-                TuningInfo::LowLatency
-            }
-            crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_ULTRA_LOW_LATENCY => {
-                TuningInfo::UltraLowLatency
-            }
-            crate::sys::NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOSSLESS => TuningInfo::Lossless,
-            _ => panic!("Invalid tuning info."),
+            NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_UNDEFINED => TuningInfo::Undefined,
+            NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_HIGH_QUALITY => TuningInfo::HighQuality,
+            NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOW_LATENCY => TuningInfo::LowLatency,
+            NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_ULTRA_LOW_LATENCY => TuningInfo::UltraLowLatency,
+            NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_LOSSLESS => TuningInfo::Lossless,
+            _ => panic!("Invalid tuning info"),
         }
     }
 }
@@ -239,25 +199,27 @@ pub enum MultiPassSetting {
 
 impl Into<crate::sys::NV_ENC_MULTI_PASS> for MultiPassSetting {
     fn into(self) -> crate::sys::NV_ENC_MULTI_PASS {
+        use crate::sys::NV_ENC_MULTI_PASS;
         match self {
-            MultiPassSetting::Disabled => crate::sys::NV_ENC_MULTI_PASS::NV_ENC_MULTI_PASS_DISABLED,
-            MultiPassSetting::QuarterResolution => crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_QUARTER_RESOLUTION,
-            MultiPassSetting::FullResolution => crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_FULL_RESOLUTION,
+            MultiPassSetting::Disabled => NV_ENC_MULTI_PASS::NV_ENC_MULTI_PASS_DISABLED,
+            MultiPassSetting::QuarterResolution => {
+                NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_QUARTER_RESOLUTION
+            }
+            MultiPassSetting::FullResolution => NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_FULL_RESOLUTION,
         }
     }
 }
 
 impl From<crate::sys::NV_ENC_MULTI_PASS> for MultiPassSetting {
     fn from(multi_pass: crate::sys::NV_ENC_MULTI_PASS) -> Self {
+        use crate::sys::NV_ENC_MULTI_PASS;
         match multi_pass {
-            crate::sys::NV_ENC_MULTI_PASS::NV_ENC_MULTI_PASS_DISABLED => MultiPassSetting::Disabled,
-            crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_QUARTER_RESOLUTION => {
+            NV_ENC_MULTI_PASS::NV_ENC_MULTI_PASS_DISABLED => MultiPassSetting::Disabled,
+            NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_QUARTER_RESOLUTION => {
                 MultiPassSetting::QuarterResolution
             }
-            crate::sys::NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_FULL_RESOLUTION => {
-                MultiPassSetting::FullResolution
-            }
-            _ => panic!("Invalid multi-pass setting."),
+            NV_ENC_MULTI_PASS::NV_ENC_TWO_PASS_FULL_RESOLUTION => MultiPassSetting::FullResolution,
+            _ => panic!("Invalid multi-pass setting"),
         }
     }
 }
