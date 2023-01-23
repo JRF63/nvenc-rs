@@ -25,7 +25,7 @@ fn open_encode_session<T: DeviceImplTrait>(
 
         // Should not fail if `nvEncOpenEncodeSessionEx` succeeded
         match NvEncError::from_nvenc_status(status) {
-            None => NonNull::new(raw_encoder).ok_or(NvEncError::default()),
+            None => Ok(NonNull::new(raw_encoder).unwrap()),
             Some(err) => Err(err),
         }
     }

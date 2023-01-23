@@ -3,7 +3,7 @@ use super::{
     raw_encoder::RawEncoder,
     texture::TextureImplTrait,
 };
-use crate::{NvEncError, Result};
+use crate::Result;
 use std::{
     mem::{ManuallyDrop, MaybeUninit},
     os::raw::c_void,
@@ -104,8 +104,7 @@ where
     }
 
     // Should not fail since `nvEncRegisterResource` succeeded
-    let registered_resource =
-        NonNull::new(register_resource_args.registeredResource).ok_or(NvEncError::default())?;
+    let registered_resource = NonNull::new(register_resource_args.registeredResource).unwrap();
 
     Ok(RegisteredResourceRAII {
         registered_resource,
@@ -139,8 +138,7 @@ fn create_output_buffer<'a>(raw_encoder: &'a RawEncoder) -> Result<OutputBufferR
     }
 
     // Should not fail since `nvEncCreateBitstreamBuffer` succeeded
-    let output_buffer =
-        NonNull::new(create_bitstream_buffer_params.bitstreamBuffer).ok_or(NvEncError::default())?;
+    let output_buffer = NonNull::new(create_bitstream_buffer_params.bitstreamBuffer).unwrap();
     Ok(OutputBufferRAII {
         output_buffer,
         raw_encoder,

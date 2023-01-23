@@ -40,13 +40,6 @@ pub enum NvEncError {
     EndOfStream,
 }
 
-impl Default for NvEncError {
-    #[inline]
-    fn default() -> Self {
-        NvEncError::Sys(NonZeroNvencStatus::NV_ENC_ERR_GENERIC)
-    }
-}
-
 impl NvEncError {
     /// Create a `NvEncError` from a `NVENCSTATUS`. Returns `None` if `status` is
     /// NVENCSTATUS::NV_ENC_SUCCESS.
