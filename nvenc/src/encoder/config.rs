@@ -108,6 +108,14 @@ impl EncodeParams {
 
         let encoder_config = unsafe { &mut *ptr };
         encoder_config.rcParams.averageBitRate = bitrate;
+        encoder_config.rcParams.maxBitRate = bitrate;
+
+        let frame_rate_num = self.0.reInitEncodeParams.frameRateNum;
+        let frame_rate_den = self.0.reInitEncodeParams.frameRateDen;
+        // video-sdk-samples is using multiplier of 5 for some reason:
+        // https://github.com/NVIDIA/video-sdk-samples/blob/aa3544dcea2fe63122e4feb83bf805ea40e58dbe/Samples/AppEncode/AppEncLowLatency/AppEncLowLatency.cpp#L62
+        encoder_config.rcParams.vbvBufferSize = bitrate * frame_rate_den / frame_rate_num;
+        encoder_config.rcParams.vbvInitialDelay = encoder_config.rcParams.vbvBufferSize;
 
         unsafe { raw_encoder.reconfigure_encoder(&mut self.0) }
     }
