@@ -230,16 +230,16 @@ impl Default for ExtraOptions {
 }
 
 impl ExtraOptions {
-    pub(crate) fn disable_inband_csd(&mut self) {
-        self.inband_csd_disabled = true;
+    pub(crate) fn inband_csd(&mut self, enable: bool) {
+        self.inband_csd_disabled = enable;
     }
 
-    pub(crate) fn repeat_csd(&mut self) {
-        self.csd_should_repeat = true;
+    pub(crate) fn repeat_csd(&mut self, enable: bool) {
+        self.csd_should_repeat = enable;
     }
 
-    pub(crate) fn enable_spatial_aq(&mut self) {
-        self.spatial_sq_enabled = true;
+    pub(crate) fn spatial_aq(&mut self, enable: bool) {
+        self.spatial_sq_enabled = enable;
     }
 
     pub(crate) fn set_multi_pass(&mut self, multi_pass: MultiPassSetting) {

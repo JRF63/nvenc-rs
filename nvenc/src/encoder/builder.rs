@@ -25,6 +25,7 @@ fn is_version_supported(version: u32) -> bool {
     }
 }
 
+/// Builder for an encoder.
 pub struct EncoderBuilder<D>
 where
     D: DeviceImplTrait,
@@ -44,6 +45,7 @@ impl<D> EncoderBuilder<D>
 where
     D: DeviceImplTrait,
 {
+    /// Create a new `EncoderBuilder` using the given device.
     pub fn new<I: IntoDevice<Device = D>>(device: I) -> Result<Self> {
         let library = Library::load()?;
 
@@ -68,6 +70,7 @@ where
         })
     }
 
+    /// Set the encoder to use the given `Codec`.
     pub fn with_codec(&mut self, codec: Codec) -> Result<&mut Self> {
         if self.supported_codecs()?.contains(&codec) {
             self.codec = Some(codec);
@@ -77,6 +80,7 @@ where
         }
     }
 
+    /// Set the encoder to use the given `CodecProfile`.
     pub fn with_codec_profile(&mut self, profile: CodecProfile) -> Result<&mut Self> {
         if self
             .supported_codec_profiles(self.codec.ok_or(NvEncError::CodecNotSet)?)?
@@ -89,6 +93,7 @@ where
         }
     }
 
+    /// Set the encoder to use the given `EncodePreset`.
     pub fn with_encode_preset(&mut self, preset: EncodePreset) -> Result<&mut Self> {
         if self
             .supported_encode_presets(self.codec.ok_or(NvEncError::CodecNotSet)?)?
@@ -101,26 +106,27 @@ where
         }
     }
 
+    /// Set the encoder to use the given `TuningInfo`.
     pub fn with_tuning_info(&mut self, tuning_info: TuningInfo) -> Result<&mut Self> {
         self.tuning_info = tuning_info;
         Ok(self)
     }
 
-    /// Disable writing SPS/PPS (H.264) or VPS/SPS/PPS (HEVC) in the bitstream.
-    pub fn disable_inband_csd(&mut self) -> Result<&mut Self> {
-        self.extra_options.disable_inband_csd();
+    /// Disable writing SPS/PPS (H.264) or VPS/SPS/PPS (HEVC) in the bitstream. Default is enabled.
+    pub fn inband_csd(&mut self, enable: bool) -> Result<&mut Self> {
+        self.extra_options.inband_csd(enable);
         Ok(self)
     }
 
-    /// Enable writing SPS/PPS (H.264) or VPS/SPS/PPS (HEVC) every IDR frame.
-    pub fn repeat_csd(&mut self) -> Result<&mut Self> {
-        self.extra_options.repeat_csd();
+    /// Enable writing SPS/PPS (H.264) or VPS/SPS/PPS (HEVC) every IDR frame. Default is disabled.
+    pub fn repeat_csd(&mut self, enable: bool) -> Result<&mut Self> {
+        self.extra_options.repeat_csd(enable);
         Ok(self)
     }
 
-    /// Enable spatial adaptive quantization.
-    pub fn enable_spatial_aq(&mut self) -> Result<&mut Self> {
-        self.extra_options.enable_spatial_aq();
+    /// Enable spatial adaptive quantization. Default is disabled.
+    pub fn spatial_aq(&mut self, enable: bool) -> Result<&mut Self> {
+        self.extra_options.spatial_aq(enable);
         Ok(self)
     }
 
@@ -130,6 +136,7 @@ where
         Ok(self)
     }
 
+    /// Build the encoder.
     pub fn build(
         self,
         width: u32,
