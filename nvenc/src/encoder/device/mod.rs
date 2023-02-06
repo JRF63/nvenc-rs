@@ -1,13 +1,14 @@
 #[cfg(windows)]
 mod windows;
 
-pub use self::windows::DirectX11Device;
+#[cfg(windows)]
+pub use self::windows::*;
 
 use super::texture::{TextureImplTrait, TextureBufferImplTrait};
 use crate::Result;
 use std::ffi::c_void;
 
-/// Methods needed to be implemented by a NvEnc device.
+/// Methods needed to be implemented by an NvEnc device.
 pub trait DeviceImplTrait {
     /// Texture buffer for staging input frames.
     type Buffer: TextureBufferImplTrait;
@@ -19,6 +20,9 @@ pub trait DeviceImplTrait {
 
     /// Pointer to the device need when initializing an encode session.
     fn as_ptr(&self) -> *mut c_void;
+
+    /// True only for a DirectX12 device.
+    fn params_require_buffer_format() -> bool;
 
     /// Creates a texture buffer where input frames can be staged. This is desirable so that
     /// the NvEnc API does not need to coordinate when to release/unmap the input resource with the

@@ -1,12 +1,14 @@
-use super::{DeviceImplTrait, IntoDevice, TextureBufferImplTrait};
-use crate::{NvEncError, Result};
+use crate::{
+    encoder::device::{DeviceImplTrait, IntoDevice, TextureBufferImplTrait},
+    NvEncError, Result,
+};
 use windows::{
     core::{InParam, Vtable},
     Win32::Graphics::{
         Direct3D11::{
-            ID3D11Device, ID3D11DeviceContext, ID3D11Texture2D,
-            D3D11_BIND_RENDER_TARGET, D3D11_CPU_ACCESS_FLAG, D3D11_RESOURCE_MISC_FLAG,
-            D3D11_TEXTURE2D_DESC, D3D11_USAGE_DEFAULT,
+            ID3D11Device, ID3D11DeviceContext, ID3D11Texture2D, D3D11_BIND_RENDER_TARGET,
+            D3D11_CPU_ACCESS_FLAG, D3D11_RESOURCE_MISC_FLAG, D3D11_TEXTURE2D_DESC,
+            D3D11_USAGE_DEFAULT,
         },
         Dxgi::Common::DXGI_SAMPLE_DESC,
     },
@@ -27,6 +29,10 @@ impl DeviceImplTrait for DirectX11Device {
 
     fn as_ptr(&self) -> *mut std::ffi::c_void {
         self.device.as_raw()
+    }
+
+    fn params_require_buffer_format() -> bool {
+        false
     }
 
     fn create_texture_buffer(

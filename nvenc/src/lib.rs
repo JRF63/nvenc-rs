@@ -7,7 +7,7 @@ mod util;
 pub type Result<T> = std::result::Result<T, NvEncError>;
 
 pub use self::{
-    encoder::{DirectX11Device, EncoderBuilder, EncoderInput, EncoderOutput, IntoDevice},
+    encoder::{EncoderBuilder, EncoderInput, EncoderOutput, device::*},
     error::NvEncError,
     settings::{Codec, CodecProfile, EncodePreset, TuningInfo, MultiPassSetting},
 };

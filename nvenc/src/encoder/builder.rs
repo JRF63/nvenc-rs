@@ -155,6 +155,7 @@ where
             preset,
             tuning_info,
             &self.extra_options,
+            D::params_require_buffer_format()
         )?;
 
         encode_params.initialize_encoder(&self.raw_encoder)?;

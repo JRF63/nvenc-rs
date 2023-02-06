@@ -32,6 +32,7 @@ impl EncodeParams {
         preset: EncodePreset,
         tuning_info: TuningInfo,
         extra_options: &ExtraOptions,
+        params_require_buffer_format: bool,
     ) -> Result<Self> {
         let mut reconfig_params: crate::sys::NV_ENC_RECONFIGURE_PARAMS =
             unsafe { MaybeUninit::zeroed().assume_init() };
@@ -73,8 +74,10 @@ impl EncodeParams {
             init_params.enableEncodeAsync = 1;
             init_params.set_enableOutputInVidmem(0);
 
-            // TODO: Need to pass-in the device type and if directx12, bufferFormat must be set
-            // init_params.bufferFormat = ...;
+            // If DirectX12, bufferFormat must be set
+            if params_require_buffer_format {
+                init_params.bufferFormat = texture_format.into_nvenc_buffer_format();
+            }
         }
 
         let codec_config = build_encode_config(
