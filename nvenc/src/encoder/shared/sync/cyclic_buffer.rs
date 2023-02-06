@@ -156,7 +156,9 @@ mod tests {
 
         // Helper function to restrict the usage of a `CyclicBuffer` between two threads only
         // (writer and the reader)
-        fn dummy_channel<T, const N: usize>(buffer: [T; N]) -> (DummyBuffer<T, N>, DummyBuffer<T, N>) {
+        fn dummy_channel<T, const N: usize>(
+            buffer: [T; N],
+        ) -> (DummyBuffer<T, N>, DummyBuffer<T, N>) {
             let shared_buffer = Arc::new(CyclicBuffer::new(buffer).unwrap());
             let writer = DummyBuffer(shared_buffer.clone());
             let reader = DummyBuffer(shared_buffer);

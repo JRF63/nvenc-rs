@@ -4,7 +4,7 @@ mod windows;
 #[cfg(windows)]
 pub use self::windows::*;
 
-use super::texture::{TextureImplTrait, TextureBufferImplTrait};
+use super::texture::{TextureBufferImplTrait, TextureImplTrait};
 use crate::Result;
 use std::ffi::c_void;
 
@@ -36,12 +36,7 @@ pub trait DeviceImplTrait {
     ) -> Result<Self::Buffer>;
 
     /// Copy a texture to the given buffer.
-    fn copy_texture(
-        &self,
-        buffer: &Self::Buffer,
-        texture: Self::Texture,
-        subresource_index: usize,
-    );
+    fn copy_texture(&self, buffer: &Self::Buffer, texture: Self::Texture, subresource_index: usize);
 }
 
 pub trait IntoDevice {

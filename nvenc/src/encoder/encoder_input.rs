@@ -56,9 +56,13 @@ impl<D: DeviceImplTrait> EncoderInput<D> {
         })
     }
 
-    pub fn update_average_bitrate(&mut self, bitrate: u32) -> Result<()> {
+    pub fn update_average_bitrate(
+        &mut self,
+        bitrate: u32,
+        vbv_buffer_size: Option<u32>,
+    ) -> Result<()> {
         self.encode_params
-            .set_average_bitrate(&self.writer, bitrate)
+            .set_average_bitrate(&self.writer, bitrate, vbv_buffer_size)
     }
 
     pub fn get_codec_specific_data(&self) -> Result<Vec<u8>> {

@@ -11,7 +11,5 @@ mod shared;
 mod texture;
 
 pub use self::{
-    builder::EncoderBuilder,
-    encoder_input::EncoderInput,
-    encoder_output::EncoderOutput,
+    builder::EncoderBuilder, encoder_input::EncoderInput, encoder_output::EncoderOutput,
 };

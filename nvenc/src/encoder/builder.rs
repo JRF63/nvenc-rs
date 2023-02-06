@@ -130,6 +130,12 @@ where
         Ok(self)
     }
 
+    /// Enable zero-reorder delay. Default is disabled.
+    pub fn zero_reorder_delay(&mut self, enable: bool) -> Result<&mut Self> {
+        self.extra_options.zero_reorder_delay(enable);
+        Ok(self)
+    }
+
     /// Configure with the given `MultiPassSetting`.
     pub fn set_multi_pass(&mut self, multi_pass: MultiPassSetting) -> Result<&mut Self> {
         self.extra_options.set_multi_pass(multi_pass);
@@ -162,7 +168,7 @@ where
             preset,
             tuning_info,
             &self.extra_options,
-            D::params_require_buffer_format()
+            D::params_require_buffer_format(),
         )?;
 
         encode_params.initialize_encoder(&self.raw_encoder)?;

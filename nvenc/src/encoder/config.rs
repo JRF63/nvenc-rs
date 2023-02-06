@@ -57,7 +57,7 @@ impl EncodeParams {
 
         let (frame_rate_num, frame_rate_den) = match refresh_rate_ratio {
             Some(pair) => pair,
-            None => (0, 0)
+            None => (0, 0),
         };
 
         init_params.frameRateNum = frame_rate_num;
@@ -80,7 +80,7 @@ impl EncodeParams {
             }
         }
 
-        let codec_config = build_encode_config(
+        let encoder_config = build_encode_config(
             raw_encoder,
             texture_format,
             codec,
@@ -90,7 +90,7 @@ impl EncodeParams {
             extra_options,
         )?;
 
-        init_params.encodeConfig = Box::into_raw(codec_config);
+        init_params.encodeConfig = Box::into_raw(encoder_config);
 
         Ok(EncodeParams(reconfig_params))
     }
@@ -99,7 +99,12 @@ impl EncodeParams {
         unsafe { raw_encoder.initialize_encoder(&mut self.0.reInitEncodeParams) }
     }
 
-    pub fn set_average_bitrate(&mut self, raw_encoder: &RawEncoder, bitrate: u32) -> Result<()> {
+    pub fn set_average_bitrate(
+        &mut self,
+        raw_encoder: &RawEncoder,
+        bitrate: u32,
+        vbv_buffer_size: Option<u32>,
+    ) -> Result<()> {
         let ptr = self.0.reInitEncodeParams.encodeConfig;
         debug_assert!(
             !ptr.is_null(),
@@ -110,12 +115,10 @@ impl EncodeParams {
         encoder_config.rcParams.averageBitRate = bitrate;
         encoder_config.rcParams.maxBitRate = bitrate;
 
-        let frame_rate_num = self.0.reInitEncodeParams.frameRateNum;
-        let frame_rate_den = self.0.reInitEncodeParams.frameRateDen;
-        // video-sdk-samples is using multiplier of 5 for some reason:
-        // https://github.com/NVIDIA/video-sdk-samples/blob/aa3544dcea2fe63122e4feb83bf805ea40e58dbe/Samples/AppEncode/AppEncLowLatency/AppEncLowLatency.cpp#L62
-        encoder_config.rcParams.vbvBufferSize = bitrate * frame_rate_den / frame_rate_num;
-        encoder_config.rcParams.vbvInitialDelay = encoder_config.rcParams.vbvBufferSize;
+        if let Some(vbv_buffer_size) = vbv_buffer_size {
+            encoder_config.rcParams.vbvBufferSize = vbv_buffer_size;
+            encoder_config.rcParams.vbvInitialDelay = vbv_buffer_size;
+        }
 
         unsafe { raw_encoder.reconfigure_encoder(&mut self.0) }
     }
@@ -212,18 +215,20 @@ fn build_encode_config<T: IntoNvEncBufferFormat>(
 }
 
 pub struct ExtraOptions {
-    inband_csd_disabled: bool,
-    csd_should_repeat: bool,
-    spatial_sq_enabled: bool,
+    inband_csd_disabled: u32,
+    csd_should_repeat: u32,
+    spatial_aq_enabled: u32,
+    zero_reorder_delay: u32,
     multi_pass: MultiPassSetting,
 }
 
 impl Default for ExtraOptions {
     fn default() -> Self {
         Self {
-            inband_csd_disabled: false,
-            csd_should_repeat: false,
-            spatial_sq_enabled: false,
+            inband_csd_disabled: 0,
+            csd_should_repeat: 0,
+            spatial_aq_enabled: 0,
+            zero_reorder_delay: 0,
             multi_pass: MultiPassSetting::Disabled,
         }
     }
@@ -231,15 +236,20 @@ impl Default for ExtraOptions {
 
 impl ExtraOptions {
     pub(crate) fn inband_csd(&mut self, enable: bool) {
-        self.inband_csd_disabled = enable;
+        // Reverse 0/1 here
+        self.inband_csd_disabled = if enable { 0 } else { 1 };
     }
 
     pub(crate) fn repeat_csd(&mut self, enable: bool) {
-        self.csd_should_repeat = enable;
+        self.csd_should_repeat = if enable { 1 } else { 0 };
     }
 
     pub(crate) fn spatial_aq(&mut self, enable: bool) {
-        self.spatial_sq_enabled = enable;
+        self.spatial_aq_enabled = if enable { 1 } else { 0 };
+    }
+
+    pub(crate) fn zero_reorder_delay(&mut self, enable: bool) {
+        self.zero_reorder_delay = if enable { 1 } else { 0 };
     }
 
     pub(crate) fn set_multi_pass(&mut self, multi_pass: MultiPassSetting) {
@@ -247,28 +257,19 @@ impl ExtraOptions {
     }
 
     fn modify_encode_config(&self, config: &mut crate::sys::NV_ENC_CONFIG) {
-        if self.spatial_sq_enabled {
-            config.rcParams.set_enableAQ(1);
-        }
+        config.rcParams.set_enableAQ(self.spatial_aq_enabled);
+        config.rcParams.set_zeroReorderDelay(self.zero_reorder_delay);
         config.rcParams.multiPass = self.multi_pass.into();
     }
 
     fn modify_h264_encode_config(&self, h264_config: &mut crate::sys::NV_ENC_CONFIG_H264) {
-        if self.inband_csd_disabled {
-            h264_config.set_disableSPSPPS(1);
-        }
-        if self.csd_should_repeat {
-            h264_config.set_repeatSPSPPS(1);
-        }
+        h264_config.set_disableSPSPPS(self.inband_csd_disabled);
+        h264_config.set_repeatSPSPPS(self.csd_should_repeat);
     }
 
     fn modify_hevc_encode_config(&self, hevc_config: &mut crate::sys::NV_ENC_CONFIG_HEVC) {
-        if self.inband_csd_disabled {
-            hevc_config.set_disableSPSPPS(1);
-        }
-        if self.csd_should_repeat {
-            hevc_config.set_repeatSPSPPS(1);
-        }
+        hevc_config.set_disableSPSPPS(self.inband_csd_disabled);
+        hevc_config.set_repeatSPSPPS(self.csd_should_repeat);
     }
 }
 

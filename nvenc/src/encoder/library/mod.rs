@@ -7,7 +7,7 @@ use self::windows::LibraryImpl;
 use crate::{NvEncError, Result};
 use std::mem::MaybeUninit;
 
-/// Helper trait that needs to be implemented by OS-specific library implementation. 
+/// Helper trait that needs to be implemented by OS-specific library implementation.
 trait LibraryImplTrait: Sized {
     /// Filename of the .dll or .so
     const LIBRARY_NAME: &'static str;
@@ -46,7 +46,7 @@ impl Library {
                 .fn_ptr(FN_NAME)
                 .ok_or(NvEncError::GetMaxSupportedVersionLoadingFailed)?
         };
-        
+
         let mut version: u32 = 0;
         let status = unsafe { get_max_supported_version(&mut version) };
 

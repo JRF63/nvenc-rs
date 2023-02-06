@@ -1,4 +1,4 @@
-use super::{shared::NvidiaEncoderReader, event::EventObjectTrait};
+use super::{event::EventObjectTrait, shared::NvidiaEncoderReader};
 use crate::{NvEncError, Result};
 use std::mem::MaybeUninit;
 
