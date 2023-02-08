@@ -24,8 +24,6 @@ impl EncodeParams {
         raw_encoder: &RawEncoder,
         width: u32,
         height: u32,
-        display_aspect_ratio: Option<(u32, u32)>,
-        refresh_rate_ratio: Option<(u32, u32)>,
         texture_format: &T,
         codec: Codec,
         profile: CodecProfile,
@@ -44,25 +42,6 @@ impl EncodeParams {
         init_params.presetGUID = preset.into();
         init_params.encodeWidth = width;
         init_params.encodeHeight = height;
-
-        let (dar_width, dar_height) = match display_aspect_ratio {
-            Some(pair) => pair,
-            None => {
-                let gcd = crate::util::gcd(width, height);
-                (width / gcd, height / gcd)
-            }
-        };
-        init_params.darWidth = dar_width;
-        init_params.darHeight = dar_height;
-
-        let (frame_rate_num, frame_rate_den) = match refresh_rate_ratio {
-            Some(pair) => pair,
-            None => (0, 0),
-        };
-
-        init_params.frameRateNum = frame_rate_num;
-        init_params.frameRateDen = frame_rate_den;
-
         init_params.enablePTD = 1;
         init_params.tuningInfo = tuning_info.into();
 
@@ -79,6 +58,9 @@ impl EncodeParams {
                 init_params.bufferFormat = texture_format.into_nvenc_buffer_format();
             }
         }
+
+        // Needs to be called after `encodeWidth` and `encodeHeight` has been initialized
+        extra_options.modify_init_params(init_params);
 
         let encoder_config = build_encode_config(
             raw_encoder,
@@ -218,8 +200,11 @@ pub struct ExtraOptions {
     inband_csd_disabled: u32,
     csd_should_repeat: u32,
     spatial_aq_enabled: u32,
-    zero_reorder_delay: u32,
+    zero_reorder_delay_enabled: u32,
     multi_pass: MultiPassSetting,
+    filler_data_frame_rate: Option<(u32, u32)>,
+    filler_data_enabled: u32,
+    display_aspect_ratio: Option<(u32, u32)>,
 }
 
 impl Default for ExtraOptions {
@@ -228,8 +213,11 @@ impl Default for ExtraOptions {
             inband_csd_disabled: 0,
             csd_should_repeat: 0,
             spatial_aq_enabled: 0,
-            zero_reorder_delay: 0,
+            zero_reorder_delay_enabled: 0,
             multi_pass: MultiPassSetting::Disabled,
+            filler_data_frame_rate: None,
+            filler_data_enabled: 0,
+            display_aspect_ratio: None,
         }
     }
 }
@@ -249,27 +237,60 @@ impl ExtraOptions {
     }
 
     pub(crate) fn zero_reorder_delay(&mut self, enable: bool) {
-        self.zero_reorder_delay = if enable { 1 } else { 0 };
+        self.zero_reorder_delay_enabled = if enable { 1 } else { 0 };
     }
 
     pub(crate) fn set_multi_pass(&mut self, multi_pass: MultiPassSetting) {
         self.multi_pass = multi_pass;
     }
 
+    pub(crate) fn filler_data_insertion(&mut self, frame_rate: Option<(u32, u32)>) {
+        self.filler_data_frame_rate = frame_rate;
+        self.filler_data_enabled = if frame_rate.is_some() { 1 } else { 0 };
+    }
+
+    pub(crate) fn display_aspect_ratio(&mut self, display_aspect_ratio: Option<(u32, u32)>) {
+        self.display_aspect_ratio = display_aspect_ratio;
+    }
+
+    fn modify_init_params(&self, init_params: &mut crate::sys::NV_ENC_INITIALIZE_PARAMS) {
+        if let Some((frame_rate_num, frame_rate_den)) = self.filler_data_frame_rate {
+            init_params.frameRateNum = frame_rate_num;
+            init_params.frameRateDen = frame_rate_den;
+        }
+
+        let (dar_width, dar_height) = match self.display_aspect_ratio {
+            Some(pair) => pair,
+            None => {
+                // Assume square pixels
+                let width = init_params.encodeWidth;
+                let height = init_params.encodeHeight;
+                let gcd = crate::util::gcd(width, height);
+                (width / gcd, height / gcd)
+            }
+        };
+        init_params.darWidth = dar_width;
+        init_params.darHeight = dar_height;
+    }
+
     fn modify_encode_config(&self, config: &mut crate::sys::NV_ENC_CONFIG) {
         config.rcParams.set_enableAQ(self.spatial_aq_enabled);
-        config.rcParams.set_zeroReorderDelay(self.zero_reorder_delay);
+        config
+            .rcParams
+            .set_zeroReorderDelay(self.zero_reorder_delay_enabled);
         config.rcParams.multiPass = self.multi_pass.into();
     }
 
     fn modify_h264_encode_config(&self, h264_config: &mut crate::sys::NV_ENC_CONFIG_H264) {
         h264_config.set_disableSPSPPS(self.inband_csd_disabled);
         h264_config.set_repeatSPSPPS(self.csd_should_repeat);
+        h264_config.set_enableFillerDataInsertion(self.filler_data_enabled);
     }
 
     fn modify_hevc_encode_config(&self, hevc_config: &mut crate::sys::NV_ENC_CONFIG_HEVC) {
         hevc_config.set_disableSPSPPS(self.inband_csd_disabled);
         hevc_config.set_repeatSPSPPS(self.csd_should_repeat);
+        hevc_config.set_enableFillerDataInsertion(self.filler_data_enabled);
     }
 }
 

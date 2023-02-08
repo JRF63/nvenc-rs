@@ -142,14 +142,29 @@ where
         Ok(self)
     }
 
+    /// Enable filler data insertion. Frame rate needs to be supplied to determine the rate at
+    /// which the filler is generated. Pass `None` to disable this option. Default is disabled.
+    pub fn filler_data_insertion(&mut self, frame_rate: Option<(u32, u32)>) -> Result<&mut Self> {
+        self.extra_options.filler_data_insertion(frame_rate);
+        Ok(self)
+    }
+
+    /// Sets the display aspect ratio. Only needs to be set for non-square pixel ratios.
+    pub fn display_aspect_ratio(
+        &mut self,
+        display_aspect_ratio: Option<(u32, u32)>,
+    ) -> Result<&mut Self> {
+        self.extra_options
+            .display_aspect_ratio(display_aspect_ratio);
+        Ok(self)
+    }
+
     /// Build the encoder.
     pub fn build(
         self,
         width: u32,
         height: u32,
         texture_format: <D::Buffer as TextureBufferImplTrait>::TextureFormat,
-        display_aspect_ratio: Option<(u32, u32)>,
-        refresh_rate_ratio: Option<(u32, u32)>,
     ) -> Result<(EncoderInput<D>, EncoderOutput)> {
         let codec = self.codec.ok_or(NvEncError::CodecNotSet)?;
         let profile = self.profile;
@@ -160,8 +175,6 @@ where
             &self.raw_encoder,
             width,
             height,
-            display_aspect_ratio,
-            refresh_rate_ratio,
             &texture_format,
             codec,
             profile,

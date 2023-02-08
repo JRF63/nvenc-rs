@@ -45,21 +45,21 @@ impl DeviceImplTrait for DirectX11Device {
         let texture_desc = D3D11_TEXTURE2D_DESC {
             Width: width,
             Height: height,
-            // plain display output has only one mip
+            // Plain display output has only one mip
             MipLevels: 1,
             ArraySize: buf_size,
             Format: texture_format,
             SampleDesc: DXGI_SAMPLE_DESC {
-                // default sampler mode
+                // Default sampler mode
                 Count: 1,
-                // default sampler mode
+                // Default sampler mode
                 Quality: 0,
             },
             // GPU needs read/write access
             Usage: D3D11_USAGE_DEFAULT,
             // https://github.com/NVIDIA/video-sdk-samples/blob/aa3544dcea2fe63122e4feb83bf805ea40e58dbe/Samples/NvCodec/NvEncoder/NvEncoderD3D11.cpp#L90
             BindFlags: D3D11_BIND_RENDER_TARGET,
-            // don't need to be accessed by the CPU
+            // Don't need to be accessed by the CPU
             CPUAccessFlags: D3D11_CPU_ACCESS_FLAG(0),
             MiscFlags: D3D11_RESOURCE_MISC_FLAG(0),
         };
