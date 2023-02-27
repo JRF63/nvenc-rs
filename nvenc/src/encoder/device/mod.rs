@@ -36,7 +36,12 @@ pub trait DeviceImplTrait {
     ) -> Result<Self::Buffer>;
 
     /// Copy a texture to the given buffer.
-    fn copy_texture(&self, buffer: &Self::Buffer, texture: Self::Texture, subresource_index: usize);
+    fn copy_texture<T: AsRef<Self::Texture>>(
+        &self,
+        buffer: &Self::Buffer,
+        texture: T,
+        subresource_index: usize,
+    );
 }
 
 pub trait IntoDevice {

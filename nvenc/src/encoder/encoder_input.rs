@@ -83,19 +83,13 @@ impl<D: DeviceImplTrait> EncoderInput<D> {
         Ok(buffer)
     }
 
-    pub fn encode_frame<F>(
-        &mut self,
-        texture: <D as DeviceImplTrait>::Texture,
-        timestamp: u64,
-        mut post_copy_op: F,
-    ) -> Result<()>
+    pub fn encode_frame<T>(&mut self, texture: T, timestamp: u64) -> Result<()>
     where
-        F: FnMut(),
+        T: AsRef<D::Texture>,
     {
         self.writer.write(|index, buffer| {
             self.device
                 .copy_texture(&self.texture_buffer, texture, index);
-            post_copy_op();
 
             buffer.mapped_input =
                 map_input(self.writer.deref(), buffer.registered_resource.as_ptr())?;
